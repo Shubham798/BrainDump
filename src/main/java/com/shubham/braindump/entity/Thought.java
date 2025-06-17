@@ -23,7 +23,7 @@ public class Thought {
     private Tag tag;
 
     @CreationTimestamp
-    @Column(name = "created_timestamp", nullable = false, updatable = false)
+    @Column(name = "created_timestamp")
     private LocalDateTime createdTimestamp;
 
     @Override

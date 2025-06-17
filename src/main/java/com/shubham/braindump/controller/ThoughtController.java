@@ -1,33 +1,38 @@
 package com.shubham.braindump.controller;
 
+import com.shubham.braindump.entity.Tag;
 import com.shubham.braindump.entity.Thought;
 import com.shubham.braindump.repository.ThoughtRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.shubham.braindump.service.AiTaggingService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.shubham.braindump.entity.Tag.*;
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/thoughts")
 public class ThoughtController {
 
-    ThoughtRepository thoughtRepository;
+    private final ThoughtRepository thoughtRepository;
 
-    public ThoughtController(ThoughtRepository thoughtRepository) {
+    private final AiTaggingService aiTaggingService;
+
+    public ThoughtController(ThoughtRepository thoughtRepository, AiTaggingService aiTaggingService) {
         this.thoughtRepository = thoughtRepository;
+        this.aiTaggingService = aiTaggingService;
     }
 
     @GetMapping
-    public String getThoughts() {
+    public List<Thought> getThoughts() {
         List<Thought> thoughts = thoughtRepository.findAll();
-        return "Hello, this is a list of thoughts!:\n" + thoughts.stream().map(Thought::toString).collect(Collectors.joining("\n"));
+//        return "Hello, this is a list of thoughts!:\n" + thoughts.stream().map(Thought::toString).collect(Collectors.joining("\n"));
+        return thoughts;
     }
 
     @PostMapping
     public String addThought(@RequestBody Thought thought) {
+        Tag tag = aiTaggingService.getTagForThought(thought.getContent());
+        thought.setTag(tag);
         thoughtRepository.save(thought);
         return "Thought added: " + thought;
     }
